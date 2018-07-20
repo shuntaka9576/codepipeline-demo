@@ -5,10 +5,10 @@ files:
     destination: /app/
 hooks:
   BeforeInstall:
-  - source: script/stop.sh
+  - source: stop.sh
     timeout: 300
     runas: root
   AfterInstall:
-  - source: script/start.sh
+  - source: start.sh
     timeout: 300
     runas: root
