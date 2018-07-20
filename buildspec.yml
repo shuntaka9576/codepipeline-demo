@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   variables:
-    SRC_DIR: src/github.com/shuntaka9576/anitwidbwriter
-    BINARY_NAME: anitwidbwriter
+    SRC_DIR: src/github.com/shuntaka9576/codepipeline-demo
+    BINARY_NAME: helloworld
 
 phases:
   install:
@@ -14,42 +14,15 @@ phases:
       - type dep && dep version && which dep
   pre_build:
     commands:
-      # ECR認証
-      - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
-      # 変数設定
-      - REPOSITORY_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_NAME}
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       # ソースファイルを移動
       - mkdir -p $GOPATH/${SRC_DIR}
       - mv ${CODEBUILD_SRC_DIR}/* $GOPATH/${SRC_DIR}
-      # 依存ライブラリを解析
-      - cd $GOPATH/${SRC_DIR}/app
-      - dep init
-      - dep ensure
   build:
     commands:
       # Goバイナリを作成
-      - cd $GOPATH/${SRC_DIR}/app
+      - cd $GOPATH/${SRC_DIR}
       - GOARCH=amd64 GOOS=linux go build -o ${BINARY_NAME}
-      - echo check directory && ls -al
-      # イメージの作成・タグ付
-      - cd $GOPATH/${SRC_DIR}/container
-      - mv ../app/${BINARY_NAME} . && cp -r ../app/config .
-      - docker build -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-      - echo check directory && ls -al
-  post_build:
-    commands:
-      - echo $IMAGE_TAG
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo "$(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})" >>DeployDockerImage.sh
-      - echo "docker images | grep $REPOSITORY_URI | awk '{print $3}' | xargs docker rmi -f" >>DeployDockerImage.sh
-      - echo "docker pull $REPOSITORY_URI:$IMAGE_TAG" >>DeployDockerImage.sh
-      - echo "docker pull $REPOSITORY_URI:latest" >>DeployDockerImage.sh
 artifacts:
     files:
        - $GOPATH/${SRC_DIR}/*
-       - $GOPATH/${SRC_DIR}/app/*
-       - $GOPATH/${SRC_DIR}/container/*
     discard-paths: yes
