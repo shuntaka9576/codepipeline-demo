@@ -3,3 +3,12 @@ os: linux
 files:
   - source: helloworld
     destination: /app/
+hooks:
+  BeforeInstall:
+  - source: script/stop.sh
+    timeout: 300
+    runas: root
+  AfterInstall:
+  - source: script/start.sh
+    timeout: 300
+    runas: root
