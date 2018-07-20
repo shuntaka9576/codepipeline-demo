@@ -1,7 +1,5 @@
 version: 0.0
 os: linux
-hooks:
-  BeforeInstall:
-    - location: DeployDockerImage.sh
-      timeout: 300
-      runas: root
+files:
+  - source: helloworld
+    destination: /app/
