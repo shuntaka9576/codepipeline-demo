@@ -25,4 +25,5 @@ phases:
 artifacts:
     files:
        - $GOPATH/${SRC_DIR}/*
+       - $GOPATH/${SRC_DIR}/script/*
     discard-paths: yes
