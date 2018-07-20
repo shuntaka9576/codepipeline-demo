@@ -1,2 +1,2 @@
 #!/bin/sh
-sudo /app/helloworld & > /dev/null
+sudo /app/helloworld &
